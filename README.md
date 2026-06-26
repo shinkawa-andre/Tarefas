@@ -11,7 +11,6 @@ O app permite criar, visualizar detalhes, marcar tarefas como concluídas e remo
 - React Native
 - TypeScript
 - SQLite 
-- FlatList
 - Componentização
 
 ---
@@ -31,6 +30,6 @@ O app permite criar, visualizar detalhes, marcar tarefas como concluídas e remo
 
 ## 📱 Preview
 
-*(adicione imagens ou GIF do app aqui)*
+![Tela do app](./assets/images/tela.png)
 
 ---

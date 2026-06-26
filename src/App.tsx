@@ -9,11 +9,11 @@ import { Task } from './types/Task';
 import TaskModal from './components/card/TaskModal';
 import { useEffect } from "react";
 import { initDatabase } from "./database/database";
-import { addTask, deleteTask, getTasks } from './database/tasks';
+import { addTask, deleteTask, getTasks, updateTask } from './database/tasks';
+import * as SplashScreen from "expo-splash-screen";
 
 
-
-
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
 
@@ -23,6 +23,7 @@ export default function App() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     initDatabase();
@@ -36,20 +37,60 @@ export default function App() {
 
   }, []);
 
-  function toggleTask(id:string){
+  function toggleTask(id: string) {
 
     setTasks(prev =>
-        prev.map(task =>
-            task.id === id
-            ? {
-                ...task,
-                completed: !task.completed
-              }
-            : task
-        )
+      prev.map(task => {
+
+        if (task.id === id) {
+
+          const newStatus = !task.completed;
+
+          updateTask(id, newStatus);
+
+          return {
+            ...task,
+            completed: newStatus
+          };
+        }
+
+        return task;
+
+      })
     );
 
-}
+  }
+
+  useEffect(() => {
+
+    async function prepare() {
+
+      try {
+
+        // aqui você inicializa coisas
+        await initDatabase();
+
+        await new Promise(resolve =>
+          setTimeout(resolve, 2000)
+        );
+
+      } finally {
+
+        setReady(true);
+
+        await SplashScreen.hideAsync();
+
+      }
+
+    }
+
+    prepare();
+
+  }, []);
+
+  if (!ready) {
+    return null;
+  }
 
 
   return (
@@ -74,16 +115,15 @@ export default function App() {
               completed: false
             }
 
-            addTask(newTask);
+            const success = addTask(newTask);
 
-            setTasks(prev => [
-              ...prev,
-              newTask
-            ]);
+            if (success) {
+              setTasks(prev => [...prev, newTask]);
 
-            setTitle("");
-            setDesc("");
+              setTitle("");
+              setDesc("");
 
+            }
           }}
         />
       </View>
